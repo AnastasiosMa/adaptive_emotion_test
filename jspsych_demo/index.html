@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Emotion Game</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"> </script>
+    <script src="./jspsych/dist/graphFunction.js"> </script>
+    <script src="./jspsych/dist/jspsych.js"></script>
+    <script src="./jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="./jspsych/dist/plugin-audio-button-response.js"> </script>
+    <script src="./jspsych/dist/plugin-emotiongame-audio-button-response.js"> </script>
+    <script src="./jspsych/dist/plugin-html-keyboard-response.js"> </script>
+    <script src="./jspsych/dist/plugin-instructions.js"> </script>
+    <script src="./data/trials.js"> </script>
+    <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+  </head>
+  <body></body>
+  <script>
+    $(document).ready(function () {
+
+      var jsPsych = initJsPsych({
+        show_progress_bar: true,
+        on_finish: function() {
+          jsPsych.data.get().localSave('csv','dataEmoGame.csv');
+        }
+      });
+
+      var images = [
+        { img: "./pics/1.png",  type: '1'},
+        { img: "./pics/2.png",  type: '2'},
+        { img: "./pics/blank.png",  type: 'blank'},
+      ];
+
+      var emotions = ['angry','fearful','happy','sad','tender']
+      var emotions_numeric = [1,2,3,4,5]
+      var epoch = 0
+      var difficulty_change = 0.25
+      var current_level = 1
+      var current_trial = []
+      var current_emotion = []
+      var excerpt_names = []
+      var N = 20
+      var candidate_trial = []
+      var correct_response = []
+
+      var emotion_order = []
+      for (let i=0;i<N/emotions_numeric.length;i++) {
+        emotion_order = emotion_order.concat(jsPsych.randomization.sampleWithoutReplacement(emotions_numeric,emotions_numeric.length))
+      }
+
+      var excerpt_order = []
+      for (let i=0;i<N;i++) {
+        excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
+      }
+      
+      //function level_advance() 
+      var instruction = {
+          type: jsPsychInstructions,
+          pages: ['<p style="font-size:7vw;">Emotion game v1.</p>'],
+          button_label_next: "Next",
+          button_label_previous: "Previous",
+          show_clickable_nav: true
+      }
+      var trial1 = {
+          type: jsPsychAudioButtonResponse,
+          stimulus: 'init',
+          choices: ['Track 1', 'Track 2'],
+          response_allowed_while_playing: false,
+          trial_duration: 4500,
+          response_ends_trial: false,
+          prompt: 'init',
+          save_trial_parameters:{stimulus:false,
+            internal_node_id:false,response:false,trial_type:false,
+            trial_index:false,rt:false,time_elapsed:false},
+          on_start: function(trial1){ 
+
+          current_emotion = emotions[emotion_order[epoch]-1]
+          candidate_trial = trials[String(current_level)][String(emotion_order[epoch])]
+          current_trial = jsPsych.randomization.sampleWithoutReplacement(candidate_trial,1)[0] 
+          excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
+          trial_track = excerpt_names[excerpt_order[epoch][0]]
+          while (trial_track.length<3) {
+            trial_track = '0' + trial_track
+          }
+          trial1.stimulus = 'mp3/' + trial_track + '.mp3'
+          trial1.prompt = "Which track is more <strong> " + current_emotion + "</strong>?"
+      }};
+
+      var trial2 = {
+        type: jsPsychAudioButtonResponse,
+        stimulus: 'init',
+        choices: ['Track 1', 'Track 2'],
+        response_allowed_while_playing: false,
+        response_ends_trial: true,
+        prompt: 'init',
+        data: {},
+        on_start: function(trial2){
+          excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
+        trial_track = excerpt_names[excerpt_order[epoch][1]]
+        while (trial_track.length<3) {
+            trial_track = '0' + trial_track
+        }
+        trial2.stimulus = 'mp3/' + trial_track + '.mp3'
+        trial2.prompt = "Which track is more <strong> " + current_emotion + "</strong>?"
+        trial2.data.stimulus_type = current_emotion
+        trial2.data.true_excerpt = current_trial['true_trial']
+        trial2.data.false_excerpt = current_trial['false_trial']
+        trial2.data.difficulty = current_trial['difficulty']
+        trial2.data.trial_index = current_trial['trial']
+        trial2.data.level = current_level
+        trial2.data.epoch = epoch
+        },
+        on_finish: function(data){
+          // Score the response as correct or incorrect.
+          if(data.response == excerpt_order[epoch][0]){
+            correct_response = 1;
+            trial2.data.correct_response =1
+          }   
+          else {
+            correct_response = 0;
+            trial2.data.correct_response = 0
+          }
+          epoch = epoch+1
+        }};
+
+      var feedback = {
+        type: jsPsychInstructions,
+        pages: [],
+        button_label_next: "Next",
+        show_clickable_nav: true,
+        on_start: function(feedback){
+        if(correct_response){
+          var previous_level = current_level
+          jump_level = Math.ceil((100 - current_level)/(1/difficulty_change))
+          current_level = current_level + jump_level
+          feedback.pages = ['<p>Correct!<br><br> Level ' + String(previous_level) + ' completed!' +
+          '<br> Next level: ' + String(current_level) + '<br><br>' +
+          'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
+          ', Wrong Excerpt: ' + current_trial['false_trial'] + 
+          ', Difficulty: ' + current_trial['difficulty'] + '</p>']
+      } else {
+        var previous_level = current_level
+        jump_level = Math.floor((current_level)/(1/difficulty_change))
+        current_level = current_level - jump_level
+        feedback.pages = ['<p>Wrong!<br><br> Level ' + String(previous_level) + ' failed!' +
+          '<br> Next level: ' + String(current_level) + '<br><br>' +
+          'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
+          ', Wrong Excerpt: ' + current_trial['false_trial'] + 
+          ', Difficulty: ' + current_trial['difficulty'] + '</p>']
+        }}}
+      
+      var the_end = {
+        type: jsPsychInstructions,
+        pages: ['<p style="font-size:2vw;">The Survey is now complete! Thank you for your participation</p>'],
+        button_label_next: "Next",
+        show_clickable_nav: true,
+      }  
+
+      var node = {
+        timeline: [trial1,trial2,feedback],
+        repetitions: N
+      }
+
+      jsPsych.run([instruction, node, the_end]);
+
+    });
+
+ </script>
+</html>
