@@ -113,7 +113,7 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
           // load audio file
           this.jsPsych.pluginAPI
               .getAudioBuffer(trial.stimulus)
-              .then((buffer) => {
+              .then((buffer) => {  
               if (context !== null) {
                   this.audio = context.createBufferSource();
                   this.audio.buffer = buffer;
@@ -194,9 +194,6 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
               else {
                   this.audio.play();
               }
-              this.jsPsych.pluginAPI.setTimeout(() => {
-                document.getElementById('id_prompt').innerHTML = ' '.repeat(trial.prompt.length)
-            }, 4000);
 
               // end trial if time limit is set
               if (trial.trial_duration !== null) {
@@ -205,6 +202,11 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
                   }, trial.trial_duration);
               }
               on_load();
+
+              this.jsPsych.pluginAPI.setTimeout(() => {
+                //document.getElementById('id_prompt').innerHTML = ' '.repeat(trial.prompt.length)
+                document.getElementById('id_prompt').innerHTML = '  Choose'
+            }, 4500);
           };
           var rts = []
           // function to handle responses by the subject
