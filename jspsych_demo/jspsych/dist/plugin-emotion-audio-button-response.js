@@ -190,7 +190,7 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
                   this.audio.play();
               }
 
-              // end trial if time limit is set
+              // end trial if timelimit is set
               if (trial.trial_duration !== null) {
                   this.jsPsych.pluginAPI.setTimeout(() => {
                       end_trial();
