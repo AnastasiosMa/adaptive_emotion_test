@@ -74,15 +74,11 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
               pretty_name: "Response allowed while playing",
               default: true,
           },
-          update_images: {
-            type: jspsych.ParameterType.BOOL,
-            pretty_name: "Update images during the trial",
-            default: false,
-          },
-          update_images: {
-            type: jspsych.ParameterType.BOOL,
-            pretty_name: "Update images during the trial",
-            default: true,
+          update_choices: {
+            type: jspsych.ParameterType.STRING,
+              pretty_name: "UpdatedChoices",
+              default: undefined,
+              array: true,
           },
       },
   };
@@ -172,7 +168,6 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
                           str +
                           "</div>";
               }
-              
               //show prompt if there is one
               if (trial.prompt !== null) {
                   html += '<br><br>' + '<div style="display: inline-block" id="id_prompt">' + trial.prompt + '</div>';
@@ -206,6 +201,7 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
               this.jsPsych.pluginAPI.setTimeout(() => {
                 //document.getElementById('id_prompt').innerHTML = ' '.repeat(trial.prompt.length)
                 document.getElementById('id_prompt').innerHTML = '  Choose'
+                document.getElementById('jspsych-audio-button-response-button-0').getElementsByTagName("img")[0].setAttribute('src',trial.update_choices[0])
             }, 4500);
           };
           var rts = []
