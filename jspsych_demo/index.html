@@ -2,7 +2,6 @@
 <html>
   <head>
     <title>Emotion Game</title>
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js"> </script>
     <script src="./jspsych/dist/graphFunction.js"> </script>
     <script src="./jspsych/dist/jspsych.js"></script>
     <script src="./jspsych/dist/plugin-html-button-response.js"></script>
@@ -17,12 +16,12 @@
   </head>
   <body></body>
   <script>
-    $(document).ready(function () {
-
       var jsPsych = initJsPsych({
-        //show_progress_bar: true,
+        show_progress_bar: true,
+        auto_update_progress_bar: false,
         on_finish: function() {
           jsPsych.data.get().localSave('csv','dataEmoGame.csv');
+          //jatos.endStudy(jsPsych.data.get().json())
         }
       });
 
@@ -58,9 +57,18 @@
       //trials 
       var instruction = {
           type: jsPsychInstructions,
-          pages: ['<p style="font-size:6vw;">Emotion game v6.</p>'],
+          pages: ['<p style="font-size:6vw;">Emotion game v6.</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
+        ' tracks and asked to choose the one that mostly represents a given emotion. The emotions in question are <strong>happy, sad, tender, angry, </strong> and <strong>fearful.</strong>'+
+        ' Listen to each music track first and then make your choice.', '<p style="font-size:30px;">Trial</p>'+'<br>' +
+        'You will now be presented with a trial to get familiar with the task. Your response will not be used in the analysis. Please also adjust the volume to a comfortable level. '],
           button_label_next: "Next",
           button_label_previous: "Previous",
+          show_clickable_nav: true
+      }
+      var test_ending = {
+          type: jsPsychInstructions,
+          pages: ['Thank you for your response! The trial is over, you can now start the study by clicking "Next"'],
+          button_label_next: "Next",
           show_clickable_nav: true
       }
       var trial1 = {
@@ -122,6 +130,7 @@
         },
         on_finish: function(data){
           // Score the response as correct or incorrect.
+          jsPsych.setProgressBar((epoch+1)/N)
           if(data.response == excerpt_order[epoch][0]){
             correct_response = 1;
             trial2.data.correct_response =1
@@ -130,7 +139,6 @@
             correct_response = 0;
             trial2.data.correct_response = 0
           }
-          epoch = epoch+1
         }};
 
       var feedback = {
@@ -139,7 +147,8 @@
         button_label_next: "Next",
         show_clickable_nav: true,
         on_start: function(feedback){
-        if(correct_response){
+          epoch = epoch+1
+          if(correct_response){
           var previous_level = current_level
           jump_level = Math.ceil((100 - current_level)/(1/difficulty_change))
           current_level = current_level + jump_level
@@ -147,7 +156,8 @@
           '<br> Next level: ' + String(current_level) + '<br><br>' +
           'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
           ', Wrong Excerpt: ' + current_trial['false_trial'] + 
-          ', Difficulty: ' + current_trial['difficulty'] + '</p>']
+          ', Difficulty: ' + current_trial['difficulty'] + 
+          ', Epoch: ' + epoch +'</p>']
       } else {
         var previous_level = current_level
         jump_level = Math.floor((current_level)/(1/difficulty_change))
@@ -156,7 +166,8 @@
           '<br> Next level: ' + String(current_level) + '<br><br>' +
           'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
           ', Wrong Excerpt: ' + current_trial['false_trial'] + 
-          ', Difficulty: ' + current_trial['difficulty'] + '</p>']
+          ', Difficulty: ' + current_trial['difficulty'] + 
+          ', Epoch: ' + epoch +'</p>']
         }}}
       
       var the_end = {
@@ -166,14 +177,19 @@
         show_clickable_nav: true,
       }  
 
+      var test = {
+        timeline: [trial1, trial2,test_ending]
+      }
+
       var node = {
         timeline: [trial1,trial2,feedback],
         repetitions: N
       }
-
-      jsPsych.run([instruction, node, the_end]);
-
-    });
+      
+      //jatos.onLoad(() => {
+        //jatos.addAbortButton();
+        jsPsych.run([instruction, test, node, the_end]);
+      //})
 
  </script>
 </html>
