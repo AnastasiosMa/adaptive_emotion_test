@@ -178,8 +178,10 @@
       }  
 
       var test = {
-        timeline: [trial1, trial2,test_ending]
-      }
+        timeline: [trial1, trial2,test_ending],
+        on_finish: function(test){
+          current_level = 50
+        }}
 
       var node = {
         timeline: [trial1,trial2,feedback],
