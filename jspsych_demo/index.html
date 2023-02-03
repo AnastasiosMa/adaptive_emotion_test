@@ -160,7 +160,7 @@
           ', Epoch: ' + epoch +'</p>']
       } else {
         var previous_level = current_level
-        jump_level = Math.floor((current_level)/(1/difficulty_change))
+        jump_level = Math.ceil((current_level)/(1/difficulty_change))
         current_level = current_level - jump_level
         feedback.pages = ['<p style="font-size:40px;">Wrong!</p><p>Level ' + String(previous_level) + ' failed!' +
           '<br> Next level: ' + String(current_level) + '<br><br>' +
