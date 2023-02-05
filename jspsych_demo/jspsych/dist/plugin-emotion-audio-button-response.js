@@ -202,7 +202,7 @@ var jsPsychEmotionAudioButtonResponse = (function (jspsych) {
                 //document.getElementById('id_prompt').innerHTML = ' '.repeat(trial.prompt.length)
                 document.getElementById('id_prompt').innerHTML = '  Choose'
                 document.getElementById('jspsych-audio-button-response-button-0').getElementsByTagName("img")[0].setAttribute('src',trial.update_choices[0])
-            }, 4500);
+            }, 5300);
           };
           var rts = []
           // function to handle responses by the subject
