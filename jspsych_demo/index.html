@@ -59,7 +59,7 @@
       //trials 
       var instruction = {
           type: jsPsychInstructions,
-          pages: ['<p style="font-size:6vw;">Emotion game v6.</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
+          pages: ['<p style="font-size:40px;">Emotion game v6.</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
         ' tracks and asked to choose the one that mostly represents a given emotion. The emotions in question are <strong>happy, sad, tender, angry, </strong> and <strong>fearful.</strong>'+
         ' Listen to each music track first and then make your choice.', '<p style="font-size:30px;">Trial</p>'+'<br>' +
         'You will now be presented with a trial to get familiar with the task. Your response will not be used in the analysis. Please also adjust the volume to a comfortable level. '],
@@ -177,25 +177,25 @@
       
       var task_repeat = {
         type: jsPsychInstructions,
-        pages: ['<p style="font-size:2vw;">Thank you for your responses! The emotion game will now be repeated</p>'],
+        pages: ['Thank you for your responses! <br>The emotion game will now be repeated.'],
         button_label_next: "Next",
         show_clickable_nav: true,
-        on_finish: function(data){
+        on_start: function(data){
         epoch = 0
         current_level = 50
+        emotion_game_trials = 2
         for (let i=0;i<N/emotions_numeric.length;i++) {
         emotion_order = emotion_order.concat(jsPsych.randomization.sampleWithoutReplacement(emotions_numeric,emotions_numeric.length))
         }
         for (let i=0;i<N;i++) {
         excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
-        }
-        emotion_game_trials = 2  
+        }  
         }
       }  
 
       var the_end = {
         type: jsPsychInstructions,
-        pages: ['<p style="font-size:2vw;">The Survey is now complete! Thank you for your participation</p>'],
+        pages: ['The Survey is now complete! Thank you for your participation.'],
         button_label_next: "Next",
         show_clickable_nav: true,
       }  
@@ -204,6 +204,7 @@
         timeline: [trial1, trial2,test_ending],
         on_finish: function(test){
           current_level = 50
+          epoch = 0
         }}
 
       var node = {
