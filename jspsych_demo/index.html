@@ -114,7 +114,8 @@
         question: 'init',
         data: {},
         on_start: function(trial2){
-          excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
+        console.log(current_trial)  
+        excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
         trial_track = excerpt_names[excerpt_order[epoch][1]]
         while (trial_track.length<3) {
             trial_track = '0' + trial_track
@@ -150,6 +151,7 @@
               current_level = 1
             }
           }
+          console.log(correct_response)
           epoch = epoch+1
         }};
       
@@ -158,7 +160,6 @@
       pages: ['<p style="font-size:30px;">Thank you for your response!</p> <br><br>To continue, click Next.'],
       button_label_next: "Next",
       show_clickable_nav: true,
-      on_start: function(trial2){console.log(current_trial)}
       }    
 
       var feedback = {
