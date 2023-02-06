@@ -152,6 +152,14 @@
           }
           epoch = epoch+1
         }};
+      
+      var feedback2 = {
+      type: jsPsychInstructions,
+      pages: ['<p style="font-size:30px;">Thank you for your response!</p> <br><br>To continue, click Next.'],
+      button_label_next: "Next",
+      show_clickable_nav: true,
+      on_start: function(trial2){console.log(current_trial)}
+      }    
 
       var feedback = {
         type: jsPsychInstructions,
@@ -208,7 +216,7 @@
         }}
 
       var node = {
-        timeline: [trial1,trial2,feedback],
+        timeline: [trial1,trial2,feedback2],
         repetitions: N
       }
       
