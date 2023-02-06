@@ -88,7 +88,7 @@
             internal_node_id:false,response:false,trial_type:false,
             trial_index:false,rt:false,time_elapsed:false},
           on_start: function(trial1){ 
-
+          console.log(current_trial)  
           current_emotion = emotions[emotion_order[epoch]-1]
           candidate_trial = trials[String(current_level)][String(emotion_order[epoch])]
           current_trial = jsPsych.randomization.sampleWithoutReplacement(candidate_trial,1)[0] 
@@ -113,8 +113,7 @@
         prompt: 'init',
         question: 'init',
         data: {},
-        on_start: function(trial2){
-        console.log(current_trial)  
+        on_start: function(trial2){  
         excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
         trial_track = excerpt_names[excerpt_order[epoch][1]]
         while (trial_track.length<3) {
