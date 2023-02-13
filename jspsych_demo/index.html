@@ -7,6 +7,7 @@
     <script src="./jspsych/dist/plugin-html-button-response.js"></script>
     <script src="./jspsych/dist/plugin-emotion-audio-button-response.js"></script>
     <script src="./jspsych/dist/plugin-instructions.js"> </script>
+    <script src="./jspsych/dist/plugin-instructions-timedout.js"></script>
     <script src="./data/newtrials.js"> </script>
     <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" /> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -72,10 +73,18 @@
     }
     var test_ending = {
       type: jsPsychInstructions,
-      pages: ['Thank you for your response! The trial is over, you can now start the study by clicking "Next"'],
+      pages: ['Thank you for your response!<br><br>The trial is over, you can now start the study by clicking "Next"'],
       button_label_next: "Next",
       show_clickable_nav: true
     }
+    var trial_load_message = {
+      type: jsPsychInstructionsTimedout,
+      pages: ['<p style="font-size:30px;">Loading Trial ' + (epoch+1).toString() + ' ...</p>'],
+      show_clickable_nav: false,
+      trial_duration: 2000, 
+      on_start: function(trial_load_message){
+        trial_load_message.pages = ['<p style="font-size:30px;">Loading Trial ' + (epoch+1).toString() + ' ...</p>'] 
+    }}      
     var trial1 = {
       type: jsPsychEmotionAudioButtonResponse,
       stimulus: 'mp3/001.mp3',
@@ -103,8 +112,7 @@
         trial1.stimulus = 'mp3/' + trial_track + '.mp3'
         trial1.question = '<p style="font-size:25px;">Which track is more <strong>' + current_emotion + '</strong>?</p>'
         trial1.prompt = 'Playing Track 1...'
-    }};
-
+    }}
     var trial2 = {
       type: jsPsychEmotionAudioButtonResponse,
       stimulus: 'mp3/001.mp3',
@@ -155,14 +163,7 @@
         }
         console.log(correct_response)
         epoch = epoch+1
-      }};
-      
-    var feedback2 = {
-    type: jsPsychInstructions,
-    pages: ['<p style="font-size:30px;">Thank you for your response!</p> <br><br>To continue, click Next.'],
-    button_label_next: "Next",
-    show_clickable_nav: true,
-    }    
+      }}
 
     var feedback = {
       type: jsPsychInstructions,
@@ -217,7 +218,7 @@
     }}
 
     var node = {
-      timeline: [trial1,trial2,feedback2],
+      timeline: [trial_load_message,trial1,trial2],
       repetitions: N
     }
     
