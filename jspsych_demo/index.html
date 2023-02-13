@@ -2,12 +2,10 @@
 <html>
   <head>
     <title>Emotion Game</title>
-    <script src="./jspsych/dist/graphFunction.js"> </script>
-    <script src="./jspsych/dist/jspsych.js"></script>
+    <script src="./jspsych/dist/jspsych.js"> </script>
+    <script src="./jspsych/dist/plugin-preload.js"> </script>
     <script src="./jspsych/dist/plugin-html-button-response.js"></script>
-    <script src="./jspsych/dist/plugin-audio-button-response.js"> </script>
-    <script src="./jspsych/dist/plugin-emotion-audio-button-response.js"> </script>
-    <script src="./jspsych/dist/plugin-html-keyboard-response.js"> </script>
+    <script src="./jspsych/dist/plugin-emotion-audio-button-response.js"></script>
     <script src="./jspsych/dist/plugin-instructions.js"> </script>
     <script src="./data/newtrials.js"> </script>
     <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" /> 
@@ -16,104 +14,109 @@
   </head>
   <body></body>
   <script>
-      var jsPsych = initJsPsych({
-        show_progress_bar: true,
-        auto_update_progress_bar: false,
-        on_finish: function() {
-          jsPsych.data.get().localSave('csv','dataEmoGame.csv');
-          //jatos.endStudy(jsPsych.data.get().json())
-        }
-      });
-
-      var images = [
-        { img: "./pics/1.png"},
-        { img: "./pics/2.png"},
-        { img: "./pics/1_fade.png"},
-        { img: "./pics/2_fade.png"}
-      ];
-
-      var emotions = ['angry','fearful','happy','sad','tender']
-      var emotions_numeric = [1,2,3,4,5]
-      var epoch = 0
-      var difficulty_change = 0.25
-      var current_level = 1
-      var previous_level = []
-      var current_trial = []
-      var current_emotion = []
-      var excerpt_names = []
-      var N = 20
-      var candidate_trial = []
-      var correct_response = []
-      var emotion_game_trials = 1
-
-      var emotion_order = []
-      for (let i=0;i<N/emotions_numeric.length;i++) {
-        emotion_order = emotion_order.concat(jsPsych.randomization.sampleWithoutReplacement(emotions_numeric,emotions_numeric.length))
+    var jsPsych = initJsPsych({
+      show_progress_bar: true,
+      auto_update_progress_bar: false,
+      on_finish: function() {
+        jsPsych.data.get().localSave('csv','dataEmoGame.csv');
+        //jatos.endStudy(jsPsych.data.get().json())
       }
+    });
 
-      var excerpt_order = []
-      for (let i=0;i<N;i++) {
-        excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
-      }
-      
-      //trials 
-      var instruction = {
-          type: jsPsychInstructions,
-          pages: ['<p style="font-size:40px;">Music and Emotion Recognition Test</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
+    var images = [
+      { img: "./pics/1.png"},
+      { img: "./pics/2.png"},
+      { img: "./pics/1_fade.png"},
+      { img: "./pics/2_fade.png"}
+    ];
+
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true 
+    }
+
+    var emotions = ['angry','fearful','happy','sad','tender']
+    var emotions_numeric = [1,2,3,4,5]
+    var epoch = 0
+    var difficulty_change = 0.25
+    var current_level = 1
+    var previous_level = []
+    var current_trial = []
+    var current_emotion = []
+    var excerpt_names = []
+    var N = 20
+    var candidate_trial = []
+    var correct_response = []
+    var emotion_game_trials = 1
+
+    var emotion_order = []
+    for (let i=0;i<N/emotions_numeric.length;i++) {
+      emotion_order = emotion_order.concat(jsPsych.randomization.sampleWithoutReplacement(emotions_numeric,emotions_numeric.length))
+    }
+
+    var excerpt_order = []
+    for (let i=0;i<N;i++) {
+      excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
+    }
+    
+    //trials 
+    var instruction = {
+      type: jsPsychInstructions,
+      pages: ['<p style="font-size:40px;">Music and Emotion Recognition Test</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
         ' tracks and asked to choose the one that mostly represents a given emotion. The emotions in question are <strong>happy, sad, tender, angry, </strong> and <strong>fearful.</strong>'+
-        ' Listen to each music track first and then make your choice.', '<p style="font-size:30px;">Trial</p>'+'<br>' +
+        ' Listen to each music track first and then make your choice.', '<p style="font-size:30px;">Practice Trial</p>'+'<br>' +
         'You will now be presented with a trial to get familiar with the task. Your response will not be used in the analysis. Please also adjust the volume to a comfortable level. '],
-          button_label_next: "Next",
-          button_label_previous: "Previous",
-          show_clickable_nav: true
-      }
-      var test_ending = {
-          type: jsPsychInstructions,
-          pages: ['Thank you for your response! The trial is over, you can now start the study by clicking "Next"'],
-          button_label_next: "Next",
-          show_clickable_nav: true
-      }
-      var trial1 = {
-          type: jsPsychEmotionAudioButtonResponse,
-          stimulus: 'init',
-          choices: [images[0]['img'], images[3]['img']],
-          button_html: '<img src="%choice%" style="width: 150px" />',
-          update_choices: '',
-          response_allowed_while_playing: false,
-          trial_duration: 5200,
-          response_ends_trial: false,
-          prompt: 'init',
-          question: 'init',
-          save_trial_parameters:{stimulus:false,
-            internal_node_id:false,response:false,trial_type:false,
-            trial_index:false,rt:false,time_elapsed:false},
-          on_start: function(trial1){ 
-          current_emotion = emotions[emotion_order[epoch]-1]
-          candidate_trial = trials[String(current_level)][String(emotion_order[epoch])]
-          current_trial = jsPsych.randomization.sampleWithoutReplacement(candidate_trial,1)[0] 
-          excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
-          trial_track = excerpt_names[excerpt_order[epoch][0]]
-          console.log(current_trial)  
-          while (trial_track.length<3) {
-            trial_track = '0' + trial_track
-          }
-          trial1.stimulus = 'mp3/' + trial_track + '.mp3'
-          trial1.question = '<p style="font-size:25px;">Which track is more <strong>' + current_emotion + '</strong>?</p>'
-          trial1.prompt = 'Playing Track 1...'
-      }};
+      button_label_next: "Next",
+      button_label_previous: "Previous",
+      show_clickable_nav: true
+    }
+    var test_ending = {
+      type: jsPsychInstructions,
+      pages: ['Thank you for your response! The trial is over, you can now start the study by clicking "Next"'],
+      button_label_next: "Next",
+      show_clickable_nav: true
+    }
+    var trial1 = {
+      type: jsPsychEmotionAudioButtonResponse,
+      stimulus: 'init',
+      choices: [images[0]['img'], images[3]['img']],
+      button_html: '<img src="%choice%" style="width: 150px" />',
+      update_choices: '',
+      response_allowed_while_playing: false,
+      trial_duration: 5200,
+      response_ends_trial: false,
+      prompt: 'init',
+      question: 'init',
+      save_trial_parameters:{stimulus:false,
+        internal_node_id:false,response:false,trial_type:false,
+        trial_index:false,rt:false,time_elapsed:false},
+      on_start: function(trial1){ 
+        current_emotion = emotions[emotion_order[epoch]-1]
+        candidate_trial = trials[String(current_level)][String(emotion_order[epoch])]
+        current_trial = jsPsych.randomization.sampleWithoutReplacement(candidate_trial,1)[0] 
+        excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
+        trial_track = excerpt_names[excerpt_order[epoch][0]]
+        console.log(current_trial)  
+        while (trial_track.length<3) {
+          trial_track = '0' + trial_track
+        }
+        trial1.stimulus = 'mp3/' + trial_track + '.mp3'
+        trial1.question = '<p style="font-size:25px;">Which track is more <strong>' + current_emotion + '</strong>?</p>'
+        trial1.prompt = 'Playing Track 1...'
+    }};
 
-      var trial2 = {
-        type: jsPsychEmotionAudioButtonResponse,
-        stimulus: 'init',
-        choices: [images[2]['img'], images[1]['img']],
-        update_choices: [images[0]['img'],0],
-        button_html: '<img src="%choice%" style="width: 150px" />',
-        response_allowed_while_playing: false,
-        response_ends_trial: true,
-        prompt: 'init',
-        question: 'init',
-        data: {},
-        on_start: function(trial2){  
+    var trial2 = {
+      type: jsPsychEmotionAudioButtonResponse,
+      stimulus: 'init',
+      choices: [images[2]['img'], images[1]['img']],
+      update_choices: [images[0]['img'],0],
+      button_html: '<img src="%choice%" style="width: 150px" />',
+      response_allowed_while_playing: false,
+      response_ends_trial: true,
+      prompt: 'init',
+      question: 'init',
+      data: {},
+      on_start: function(trial2){  
         excerpt_names = [current_trial['true_trial'],current_trial['false_trial']]
         trial_track = excerpt_names[excerpt_order[epoch][1]]
         while (trial_track.length<3) {
@@ -129,66 +132,66 @@
         trial2.data.trial_index = current_trial['trial']
         trial2.data.level = current_level
         trial2.data.epoch = epoch
-        },
-        on_finish: function(data){
-          // Score the response as correct or incorrect.
-          jsPsych.setProgressBar((emotion_game_trials*(epoch+1))/(2*N))
-          if(data.response == excerpt_order[epoch][0]){
-            correct_response = 1;
-            trial2.data.correct_response =1
-            previous_level = current_level
-            jump_level = Math.ceil((100 - current_level)/(1/difficulty_change))
-            current_level = current_level + jump_level
-          }   
-          else {
-            correct_response = 0;
-            trial2.data.correct_response = 0
-            previous_level = current_level
-            jump_level = Math.ceil((current_level)/(1/difficulty_change))
-            current_level = current_level - jump_level
-            if(current_level == 0){
-              current_level = 1
-            }
+      },
+      on_finish: function(data){
+        // Score the response as correct or incorrect.
+        jsPsych.setProgressBar((emotion_game_trials*(epoch+1))/(2*N))
+        if(data.response == excerpt_order[epoch][0]){
+          correct_response = 1;
+          trial2.data.correct_response =1
+          previous_level = current_level
+          jump_level = Math.ceil((100 - current_level)/(1/difficulty_change))
+          current_level = current_level + jump_level
+        }   
+        else {
+          correct_response = 0;
+          trial2.data.correct_response = 0
+          previous_level = current_level
+          jump_level = Math.ceil((current_level)/(1/difficulty_change))
+          current_level = current_level - jump_level
+          if(current_level == 0){
+            current_level = 1
           }
-          console.log(correct_response)
-          epoch = epoch+1
-        }};
+        }
+        console.log(correct_response)
+        epoch = epoch+1
+      }};
       
-      var feedback2 = {
+    var feedback2 = {
+    type: jsPsychInstructions,
+    pages: ['<p style="font-size:30px;">Thank you for your response!</p> <br><br>To continue, click Next.'],
+    button_label_next: "Next",
+    show_clickable_nav: true,
+    }    
+
+    var feedback = {
       type: jsPsychInstructions,
-      pages: ['<p style="font-size:30px;">Thank you for your response!</p> <br><br>To continue, click Next.'],
+      pages: [],
       button_label_next: "Next",
       show_clickable_nav: true,
-      }    
-
-      var feedback = {
-        type: jsPsychInstructions,
-        pages: [],
-        button_label_next: "Next",
-        show_clickable_nav: true,
-        on_start: function(feedback){
-          if(correct_response){
+      on_start: function(feedback){
+        if(correct_response){
           feedback.pages = ['<p style="font-size:40px;">Correct!</p><p>Level ' + String(previous_level) + ' completed!' +
-          '<br> Next level: ' + String(current_level) + '<br><br>' +
-          'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
-          ', Wrong Excerpt: ' + current_trial['false_trial'] + 
-          ', Difficulty: ' + current_trial['difficulty'] + 
-          ', Epoch: ' + epoch +', Trial: ' + current_trial['trial'] + '</p>']
+            '<br> Next level: ' + String(current_level) + '<br><br>' +
+            'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
+            ', Wrong Excerpt: ' + current_trial['false_trial'] + 
+            ', Difficulty: ' + current_trial['difficulty'] + 
+            ', Epoch: ' + epoch +', Trial: ' + current_trial['trial'] + '</p>']
       } else {
-        feedback.pages = ['<p style="font-size:40px;">Wrong!</p><p>Level ' + String(previous_level) + ' failed!' +
-          '<br> Next level: ' + String(current_level) + '<br><br>' +
-          'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
-          ', Wrong Excerpt: ' + current_trial['false_trial'] + 
-          ', Difficulty: ' + current_trial['difficulty'] + 
-          ', Epoch: ' + epoch +', Trial: ' + current_trial['trial'] + '</p>']
-        }}}
-      
-      var task_repeat = {
-        type: jsPsychInstructions,
-        pages: ['Thank you for your responses! <br>The emotion game will now be repeated.'],
-        button_label_next: "Next",
-        show_clickable_nav: true,
-        on_start: function(data){
+          feedback.pages = ['<p style="font-size:40px;">Wrong!</p><p>Level ' + String(previous_level) + ' failed!' +
+            '<br> Next level: ' + String(current_level) + '<br><br>' +
+            'Trial Info: Correct Excerpt: ' + current_trial['true_trial'] + 
+            ', Wrong Excerpt: ' + current_trial['false_trial'] + 
+            ', Difficulty: ' + current_trial['difficulty'] + 
+            ', Epoch: ' + epoch +', Trial: ' + current_trial['trial'] + '</p>']
+    }}}
+    
+    var task_repeat = {
+      type: jsPsychInstructions,
+      pages: ['Thank you for your responses! <br>The emotion game will now be repeated.'],
+      button_label_next: "Next",
+      show_clickable_nav: true,
+      on_start: function(data){
         epoch = 0
         current_level = 50
         emotion_game_trials = 2
@@ -197,32 +200,30 @@
         }
         for (let i=0;i<N;i++) {
         excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
-        }  
-        }
-      }  
+    }}}  
 
-      var the_end = {
-        type: jsPsychInstructions,
-        pages: ['The Survey is now complete! Thank you for your participation.'],
-        button_label_next: "Next",
-        show_clickable_nav: true,
-      }  
+    var the_end = {
+      type: jsPsychInstructions,
+      pages: ['The Survey is now complete! Thank you for your participation.'],
+      button_label_next: "Next",
+      show_clickable_nav: true,
+    }  
 
-      var test = {
-        timeline: [trial1, trial2,test_ending],
-        on_finish: function(test){
-          current_level = 50
-          epoch = 0
-        }}
+    var test = {
+      timeline: [trial1, trial2,test_ending],
+      on_finish: function(test){
+        current_level = 50
+        epoch = 0
+    }}
 
-      var node = {
-        timeline: [trial1,trial2,feedback2],
-        repetitions: N
-      }
-      
-      //jatos.onLoad(() => {
-        //jatos.addAbortButton();
-        jsPsych.run([instruction, test, node, task_repeat, node,the_end]);
+    var node = {
+      timeline: [trial1,trial2,feedback2],
+      repetitions: N
+    }
+    
+    //jatos.onLoad(() => {
+      //jatos.addAbortButton();
+      jsPsych.run([instruction, preload,test, node, task_repeat, node,the_end]);
       //})
 
  </script>
