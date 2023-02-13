@@ -32,7 +32,7 @@
 
     var preload = {
     type: jsPsychPreload,
-    images: images 
+    images: ["./pics/1.png","./pics/2.png","./pics/1_fade.png","./pics/2_fade.png"]
     }
 
     var emotions = ['angry','fearful','happy','sad','tender']
@@ -59,15 +59,24 @@
       excerpt_order.push(jsPsych.randomization.sampleWithoutReplacement([0,1],2))
     }
     
-    //trials 
-    var instruction = {
+    //trials
+    var welcome = {
       type: jsPsychInstructions,
-      pages: ['<p style="font-size:40px;">Music and Emotion Recognition Test</p>','<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
+      pages: ['<p style="font-size:40px;">Music and Emotion Recognition Test</p>'],
+      button_label_next: "Next",
+      button_label_previous: "Previous",
+      allow_backward: false,
+      show_clickable_nav: true
+    }
+    var instructions = {
+      type: jsPsychInstructions,
+      pages: ['<p style="font-size:30px;">Instructions</p>'+'<br>In this section, you will listen to pairs of short music'+
         ' tracks and asked to choose the one that mostly represents a given emotion. The emotions in question are <strong>happy, sad, tender, angry, </strong> and <strong>fearful.</strong>'+
         ' Listen to each music track first and then make your choice.', '<p style="font-size:30px;">Practice Trial</p>'+'<br>' +
         'You will now be presented with a trial to get familiar with the task. Your response will not be used in the analysis.<br>Please also adjust the volume to a comfortable level. '],
       button_label_next: "Next",
       button_label_previous: "Previous",
+      allow_backward: true,
       show_clickable_nav: true
     }
     var test_ending = {
@@ -223,7 +232,7 @@
     
     //jatos.onLoad(() => {
       //jatos.addAbortButton();
-      jsPsych.run([instruction, preload,test, node, task_repeat, node,the_end]);
+      jsPsych.run([welcome, instructions, preload, test, node, task_repeat, node, the_end]);
       //})
 
  </script>
